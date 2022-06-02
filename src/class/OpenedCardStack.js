@@ -9,14 +9,12 @@ class OpenedCardStack {
         this.selectedCardsCount = 0;
         this.selectedTextObject = null;
         this.selectedText = "";
+
+        this.gameData.dialogContainer.AddOnYesAction(this.applySaveCards);
     }
 
-    addText(textObject) {
-        this.selectedTextObject = textObject;
-        this.selectedText = textObject.text;
-    }
-
-    deleteCards(orderId) {
+    applySaveCards(params) {
+        const orderId = params.orderId;
         const playerData = this.gameData.table.players[0];
         const lastIndex = Object.keys(this.childStore).length - 1;
         const toIndex = lastIndex - (orderId + 1);
@@ -37,6 +35,17 @@ class OpenedCardStack {
         }
 
         this.gameData.Redraw();
+    }
+
+    addText(textObject) {
+        this.selectedTextObject = textObject;
+        this.selectedText = textObject.text;
+    }
+
+    deleteCards(orderId) {
+        this.gameData.dialogContainer.SetParams({ "orderId": orderId })
+        this.gameData.dialogContainer.AddDialogText('Ану иди сюда мать твою! Жопа срань говно собачье');
+        this.gameData.dialogContainer.ShowDialog();
     }
 
     onFocus(isFocus, orderId) {
