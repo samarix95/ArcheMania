@@ -25,33 +25,32 @@ class Game {
     Start() {
         const player1 = new Player(0);
         this.table.AddPlayer(player1);
+        this.table.GiveCard(0);
+        this.table.GiveCard(0);
 
         const rectangle = new Graphics();
         rectangle.beginFill(0xFFFFFF)
             .drawRect(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y, CONFIG.HAND_WIDTH, CONFIG.HAND_HEIGHT)
             .endFill();
-        this.app.stage.addChild(rectangle);
 
         const cardLeftCntText = new Text(`Cards left: ${this.table.deck.cards.length}`);
         cardLeftCntText.anchor.set(0.5, 0.5);
-        cardLeftCntText.position.set(
-            window.innerWidth / 2,
-            window.innerHeight / 4 + CONFIG.CARD_HEIGHT / 1.5
-        );
-        this.backCardContainer.addChildAt(cardLeftCntText, 0);
+        cardLeftCntText.position.set(window.innerWidth / 2, window.innerHeight / 4 + CONFIG.CARD_HEIGHT / 1.5);
 
         const closedBackCard = new Card(1000, "0", 'card-shirt-1.png');
         closedBackCard.cardSprite.position.set(window.innerWidth / 2, window.innerHeight / 4 - 10);
+
+        this.backCardContainer.addChildAt(cardLeftCntText, 0);
         this.backCardContainer.addChildAt(closedBackCard.cardSprite, 1);
 
-        this.app.stage.addChild(this.backCardContainer);
-
         const closedCard = new ClosedCard(1000, "0", 'card-shirt-1.png');
-        closedCard.cardSprite.position.set(window.innerWidth / 2, window.innerHeight / 4);
-        closedCard.cardSprite.on('pointerup', () => this.onDragCardEnd(closedCard));
-        closedCard.cardSprite.on('pointerupoutside', () => this.onDragCardEnd(closedCard));
-        closedCard.cardSprite.on('click', (e) => this.checkDClick(e, closedCard));
-        this.app.stage.addChild(closedCard.cardSprite);
+        closedCard.position.set(window.innerWidth / 2, window.innerHeight / 4);
+        closedCard.on('pointerup', () => this.onDragCardEnd(closedCard));
+        closedCard.on('pointerupoutside', () => this.onDragCardEnd(closedCard));
+        closedCard.on('click', (e) => this.checkDClick(e, closedCard));
+
+        this.app.stage.addChild(rectangle, this.backCardContainer, closedCard);
+        this.Redraw();
     }
 
     checkDClick(e, element) {
@@ -60,18 +59,7 @@ class Game {
             this.clickedDataPoint = e.data.global;
         } else {
             if (new Date().getTime() - this.timeOne < 500 && this.clickedDataPoint === e.data.global) {
-                this.table.GiveCard(0);
-                const text = this.backCardContainer.getChildAt(0);
-                text.text = `Cards left: ${this.table.deck.cards.length}`;
-
-                if (this.table.deck.cards.length == 1) {
-                    this.backCardContainer.removeChildAt(1);
-                }
-
-                if (this.table.deck.cards.length == 0) {
-                    this.app.stage.removeChild(element.cardSprite);
-                }
-                this.Redraw();
+                this.OpenCard(element);
             }
             this.timeOne = null;
             this.clickedDataPoint = null;
@@ -79,37 +67,31 @@ class Game {
     }
 
     onDragCardEnd(element) {
-        if (element.cardSprite.dragging) {
-            element.cardSprite.alpha = 1;
-            element.cardSprite.data = null;
-            element.cardSprite.dragging = false;
+        if (element.dragging) {
+            element.alpha = 1;
+            element.data = null;
+            element.dragging = false;
 
-            const x1 = CONFIG.HAND_RECT_X,
-                y1 = CONFIG.HAND_RECT_Y,
-                x2 = CONFIG.HAND_RECT_X + CONFIG.HAND_WIDTH,
-                y2 = CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT,
-                x = element.cardSprite.x,
-                y = element.cardSprite.y;
-
-            if (element.pointInRect({ x1, y1, x2, y2 }, { x, y })) {
-                this.table.GiveCard(0);
-                const text = this.backCardContainer.getChildAt(0);
-                text.text = `Cards left: ${this.table.deck.cards.length}`;
-
-                if (this.table.deck.cards.length == 1) {
-                    this.backCardContainer.removeChildAt(1);
-                }
-
-                if (this.table.deck.cards.length == 0) {
-                    this.app.stage.removeChild(element.cardSprite);
-                } else {
-                    element.cardSprite.position.set(window.innerWidth / 2, window.innerHeight / 4);
-                }
-                this.Redraw();
-            } else {
-                element.cardSprite.position.set(window.innerWidth / 2, window.innerHeight / 4);
+            if (element.isInRect) {
+                this.OpenCard(element);
             }
+            element.position.set(window.innerWidth / 2, window.innerHeight / 4);
         }
+    }
+
+    OpenCard(element) {
+        this.table.GiveCard(0);
+        const text = this.backCardContainer.getChildAt(0);
+        text.text = `Cards left: ${this.table.deck.cards.length}`;
+
+        if (this.table.deck.cards.length == 1) {
+            this.backCardContainer.removeChildAt(1);
+        }
+
+        if (this.table.deck.cards.length == 0) {
+            this.app.stage.removeChild(element);
+        }
+        this.Redraw();
     }
 
     Redraw() {
@@ -122,40 +104,32 @@ class Game {
         player.sort((a, b) => a.card.id - b.card.id)
             .map((card, key) => {
                 const openedCardStack = new OpenedCardStack(this);
-                const xPos = (window.innerWidth / 2 + key * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) -
-                    (((player.length - 1) * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) / 2);
+                // TODO: Should do it more clearly
+                const xPos = (window.innerWidth / 2 + key * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) - (((player.length - 1) * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) / 2);
                 const yPos = CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT / 2;
 
-                let orderId = card.count - 1;
                 for (let i = card.count - 1; i >= 0; i--) {
                     const newCard = new OpenedCard(card.card.id, card.card.name, card.card.image);
                     newCard.cardSprite.position.set(xPos, yPos - 15 * (i));
-                    newCard.setOrderId(orderId);
+                    newCard.setOrderId(i);
                     openedCardStack.addCard(newCard);
-                    orderId--;
                 }
 
                 const scoreCntText = new Text(`In stack: ${card.card.score[card.count]}`);
                 scoreCntText.anchor.set(0.5, 0.5);
                 scoreCntText.position.set(xPos, yPos + CONFIG.CARD_HEIGHT / 1.5);
-                this.drawable.push(scoreCntText);
-                this.app.stage.addChild(scoreCntText);
-
                 openedCardStack.addText(scoreCntText);
 
+                this.drawable.push(scoreCntText);
                 this.drawable.push(openedCardStack.cardsContainer);
-                this.app.stage.addChild(openedCardStack.cardsContainer);
-
+                this.app.stage.addChild(scoreCntText, openedCardStack.cardsContainer);
             });
 
         const totalScoreText = new Text(`Total score: ${this.table.players[0].totalsScore}`);
         totalScoreText.anchor.set(0.5, 0.5);
-        totalScoreText.position.set(
-            window.innerWidth / 2,
-            window.innerHeight / 4 - CONFIG.CARD_HEIGHT / 1.5
-        );
-        this.app.stage.addChild(totalScoreText);
+        totalScoreText.position.set(window.innerWidth / 2, window.innerHeight / 4 - CONFIG.CARD_HEIGHT / 1.5);
         this.drawable.push(totalScoreText);
+        this.app.stage.addChild(totalScoreText);
     }
 }
 export default Game;

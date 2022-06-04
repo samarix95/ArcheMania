@@ -5,7 +5,9 @@ class ClosedCard extends PlayableCard {
     constructor(id, name, image) {
         super(id, name, image);
         this.cardSprite.on('pointerdown', (e) => this.onDragStart(e));
-        this.cardSprite.on('pointermove', (e) => this.onDragCardMove());
+        this.cardSprite.on('pointermove', () => this.onDragCardMove());
+        this.cardSprite.isInRect = false;
+        return this.cardSprite;
     }
 
     onDragStart(e) {
@@ -13,7 +15,7 @@ class ClosedCard extends PlayableCard {
         this.cardSprite.dragging = this.cardSprite.data.getLocalPosition(this.cardSprite.parent);
     }
 
-    onDragCardMove(e) {
+    onDragCardMove() {
         if (this.cardSprite.dragging) {
             var newPos = this.cardSprite.data.getLocalPosition(this.cardSprite.parent);
             this.cardSprite.position.x += (newPos.x - this.cardSprite.dragging.x);
@@ -29,8 +31,10 @@ class ClosedCard extends PlayableCard {
 
             if (this.pointInRect({ x1, y1, x2, y2 }, { x, y })) {
                 this.cardSprite.alpha = 0.5;
+                this.cardSprite.isInRect = true;
             } else {
                 this.cardSprite.alpha = 1;
+                this.cardSprite.isInRect = false;
             }
         }
     }

@@ -8,6 +8,8 @@ class OpenedCardStack {
         this.playerData = this.gameData.table.players[0];
 
         this.cardsContainer = new Container();
+        this.cardsContainer.position.set();
+
         this.childStore = {};
         this.cardId = null;
 
@@ -15,6 +17,10 @@ class OpenedCardStack {
         this.selectedScore = 0;
         this.selectedTextObject = null;
         this.selectedText = "";
+
+        this.isMouseDown = false;
+        document.addEventListener('mousedown', () => { this.isMouseDown = true });
+        document.addEventListener('mouseup', () => { this.isMouseDown = false });
     }
 
     addCard(card) {
@@ -73,27 +79,29 @@ class OpenedCardStack {
     }
 
     onFocus(isFocus, orderId) {
-        const foundCardIndex = this.playerData.playerCards.findIndex(x => x.card.id == this.cardId);
-        this.selectedCardsCount = 0;
+        if (!this.isMouseDown) {
+            const foundCardIndex = this.playerData.playerCards.findIndex(x => x.card.id == this.cardId);
+            this.selectedCardsCount = 0;
 
-        for (let i = 0; i <= orderId; i++) {
-            const element = this.cardsContainer.getChildAt(this.cardsContainer.getChildIndex(this.childStore[i]));
+            for (let i = 0; i <= orderId; i++) {
+                const element = this.cardsContainer.getChildAt(this.cardsContainer.getChildIndex(this.childStore[i]));
 
-            if (isFocus) {
-                this.selectedCardsCount++;
-                element.scale.x += 0.01;
-                element.scale.y += 0.01;
-            } else {
-                element.scale.x -= 0.01;
-                element.scale.y -= 0.01;
+                if (isFocus) {
+                    this.selectedCardsCount++;
+                    element.scale.x += 0.01;
+                    element.scale.y += 0.01;
+                } else {
+                    element.scale.x -= 0.01;
+                    element.scale.y -= 0.01;
+                }
             }
+
+            this.selectedScore = this.playerData.playerCards[foundCardIndex].card.score[this.selectedCardsCount];
+
+            this.selectedTextObject.text = isFocus
+                ? `Selected: ${this.selectedScore}`
+                : this.selectedTextObject.text = this.selectedText;
         }
-
-        this.selectedScore = this.playerData.playerCards[foundCardIndex].card.score[this.selectedCardsCount];
-
-        this.selectedTextObject.text = isFocus
-            ? `Selected: ${this.selectedScore}`
-            : this.selectedTextObject.text = this.selectedText;
     }
 }
 export default OpenedCardStack;
