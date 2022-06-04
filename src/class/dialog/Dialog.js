@@ -1,72 +1,70 @@
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
-import { DIALOG_X_POS, DIALOG_Y_POS, DIALOG_WIDTH, DIALOG_HEIGHT, DIALOG_TEXT_PADDING } from '../../config.js';
+import * as CONFIG from '../../config.js';
 
-import Button from "./Button";
+import App from '../App.js';
+import Button from './Button';
 
 class Dialog {
     constructor(dialogText = '', onYesAction = null, onNoAction = null, params = {}) {
-        this.dialog = new Container();
-        this.dialog.params = params;
-        this.dialog.onYesAction = onYesAction == null ? () => { } : onYesAction;
-        this.dialog.onNoAction = onNoAction == null ? () => { } : onNoAction;
-        this.dialog.visible = false;
+        this.app = App.getInstance();
+        this.params = params;
+        this.onYesAction = onYesAction == null ? () => { } : onYesAction;
+        this.onNoAction = onNoAction == null ? () => { } : onNoAction;
 
-        this.dialogField = new Graphics();
-        this.dialogField.beginFill(0xFF3FFF)
+        this.dialogContainer = new Container();
+        this.dialogContainer.position.set(CONFIG.DIALOG_X_POS, CONFIG.DIALOG_Y_POS);
+        this.dialogContainer.visible = false;
+
+        const dialogBackGround = new Graphics();
+        dialogBackGround.beginFill(0xe6e6fa)
             .lineStyle(4, 0x0, .3)
-            .drawRoundedRect(DIALOG_X_POS, DIALOG_Y_POS, DIALOG_WIDTH, DIALOG_HEIGHT, 15)
-            .endFill();
-        this.dialog.addChild(this.dialogField)
+            .drawRect(-CONFIG.DIALOG_X_POS, -CONFIG.DIALOG_Y_POS, window.innerWidth, window.innerHeight)
+            .endFill()
+        dialogBackGround.alpha = 0.5;
+        dialogBackGround.interactive = true;
 
-        this.text = new Text(dialogText, new TextStyle({
+        const dialogField = new Graphics();
+        dialogField.beginFill(0xe6e6fa)
+            .lineStyle(4, 0x0, .3)
+            .drawRoundedRect(0, 0, CONFIG.DIALOG_WIDTH, CONFIG.DIALOG_HEIGHT, 15)
+            .endFill();
+
+        const text = new Text(dialogText, new TextStyle({
             fill: "#2c3e50",
             wordWrap: true,
-            wordWrapWidth: DIALOG_WIDTH - DIALOG_TEXT_PADDING,
+            wordWrapWidth: CONFIG.DIALOG_WIDTH - CONFIG.DIALOG_TEXT_MARGIN,
             fontSize: 17,
             lineHeight: 17 * 1.65,
             antialiasing: true
         }));
-        this.text.anchor.set(0.5, 0.5);
-        this.text.x = DIALOG_X_POS + DIALOG_WIDTH / 2;
-        this.text.y = DIALOG_Y_POS + DIALOG_HEIGHT / 2;
-        this.dialog.addChild(this.text);
+        text.position.set(CONFIG.DIALOG_WIDTH / 2, CONFIG.DIALOG_PADDING);
+        text.anchor.set(0.5, 0.5);
 
-        this.buttonYes = new Button(DIALOG_X_POS + DIALOG_WIDTH - 50, DIALOG_Y_POS + DIALOG_HEIGHT - 35, 80, 45, 'Yes', this.OnYes);
-        this.dialog.addChild(this.buttonYes);
+        const buttonYes = new Button(CONFIG.DIALOG_WIDTH - CONFIG.DIALOG_PADDING, CONFIG.DIALOG_HEIGHT - 35, 80, 45, 'Yes', this.OnYesAction.bind(this));
+        const buttonNo = new Button(CONFIG.DIALOG_PADDING, CONFIG.DIALOG_HEIGHT - 35, 80, 45, 'No', this.OnNoAction.bind(this));
 
-        this.buttonNo = new Button(DIALOG_X_POS + 50, DIALOG_Y_POS + DIALOG_HEIGHT - 35, 80, 45, 'No', this.OnNo);
-        this.dialog.addChild(this.buttonNo);
+        this.dialogContainer.addChild(dialogBackGround, dialogField, text, buttonYes, buttonNo);
         return this;
     }
 
-    OnYes() {
-        this.parent.parent.onYesAction(this.parent.parent.params);
-        this.parent.parent.visible = false;
-    }
-
-    OnNo() {
-        this.parent.parent.onNoAction(this.parent.parent.params);
-        this.parent.parent.visible = false;
-    }
-
     ShowDialog() {
-        this.dialog.visible = true;
+        this.dialogContainer.visible = true;
+        this.app.stage.addChild(this.dialogContainer);
     }
 
-    AddDialogText(text) {
-        this.text.text = text;
+    HideDialog() {
+        this.dialogContainer.visible = false;
+        this.app.stage.removeChild(this.dialogContainer);
     }
 
-    AddOnYesAction(method) {
-        this.dialog.onYesAction = method;
+    OnYesAction() {
+        this.onYesAction(this.params);
+        this.HideDialog();
     }
 
-    AddOnNoAction(method) {
-        this.dialog.onNoAction = method;
-    }
-
-    SetParams(params) {
-        this.dialog.params = params;
+    OnNoAction() {
+        this.onNoAction(this.params);
+        this.HideDialog();
     }
 }
 export default Dialog;

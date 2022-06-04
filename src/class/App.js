@@ -22,7 +22,7 @@ class App {
             this.instance = new App();
         }
 
-        return this.instance;
+        return this.instance.app;
     }
 }
 export default App;

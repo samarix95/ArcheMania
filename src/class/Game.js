@@ -1,5 +1,5 @@
 import { Graphics, Container, Text } from 'pixi.js';
-import { CARD_WIDTH, CARD_OFFSET, HAND_WIDTH, HAND_HEIGHT, HAND_RECT_X, HAND_RECT_Y, CARD_HEIGHT } from '../config.js';
+import * as CONFIG from '../config.js';
 
 import Player from './Player';
 import Table from './Table';
@@ -8,11 +8,11 @@ import ClosedCard from './ClosedCard';
 import OpenedCard from './OpenedCard';
 import OpenedCardStack from './OpenedCardStack';
 
-import Dialog from './dialog/Dialog.js';
+import App from './App.js';
 
 class Game {
-    constructor(app) {
-        this.app = app;
+    constructor() {
+        this.app = App.getInstance();
         this.table = new Table();
         this.drawable = [];
         this.backCardContainer = new Container();
@@ -20,8 +20,6 @@ class Game {
         // DoubleClick costyl
         this.timeOne = null;
         this.clickedDataPoint = null;
-
-        this.dialogContainer = new Dialog();
     }
 
     Start() {
@@ -30,7 +28,7 @@ class Game {
 
         const rectangle = new Graphics();
         rectangle.beginFill(0xFFFFFF)
-            .drawRect(HAND_RECT_X, HAND_RECT_Y, HAND_WIDTH, HAND_HEIGHT)
+            .drawRect(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y, CONFIG.HAND_WIDTH, CONFIG.HAND_HEIGHT)
             .endFill();
         this.app.stage.addChild(rectangle);
 
@@ -38,7 +36,7 @@ class Game {
         cardLeftCntText.anchor.set(0.5, 0.5);
         cardLeftCntText.position.set(
             window.innerWidth / 2,
-            window.innerHeight / 4 + CARD_HEIGHT / 1.5
+            window.innerHeight / 4 + CONFIG.CARD_HEIGHT / 1.5
         );
         this.backCardContainer.addChildAt(cardLeftCntText, 0);
 
@@ -54,8 +52,6 @@ class Game {
         closedCard.cardSprite.on('pointerupoutside', () => this.onDragCardEnd(closedCard));
         closedCard.cardSprite.on('click', (e) => this.checkDClick(e, closedCard));
         this.app.stage.addChild(closedCard.cardSprite);
-
-        this.app.stage.addChild(this.dialogContainer.dialog);
     }
 
     checkDClick(e, element) {
@@ -88,10 +84,10 @@ class Game {
             element.cardSprite.data = null;
             element.cardSprite.dragging = false;
 
-            const x1 = HAND_RECT_X,
-                y1 = HAND_RECT_Y,
-                x2 = HAND_RECT_X + HAND_WIDTH,
-                y2 = HAND_RECT_Y + HAND_HEIGHT,
+            const x1 = CONFIG.HAND_RECT_X,
+                y1 = CONFIG.HAND_RECT_Y,
+                x2 = CONFIG.HAND_RECT_X + CONFIG.HAND_WIDTH,
+                y2 = CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT,
                 x = element.cardSprite.x,
                 y = element.cardSprite.y;
 
@@ -126,9 +122,9 @@ class Game {
         player.sort((a, b) => a.card.id - b.card.id)
             .map((card, key) => {
                 const openedCardStack = new OpenedCardStack(this);
-                const xPos = (window.innerWidth / 2 + key * (CARD_WIDTH + CARD_OFFSET)) -
-                    (((player.length - 1) * (CARD_WIDTH + CARD_OFFSET)) / 2);
-                const yPos = HAND_RECT_Y + HAND_HEIGHT / 2;
+                const xPos = (window.innerWidth / 2 + key * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) -
+                    (((player.length - 1) * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) / 2);
+                const yPos = CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT / 2;
 
                 let orderId = card.count - 1;
                 for (let i = card.count - 1; i >= 0; i--) {
@@ -141,7 +137,7 @@ class Game {
 
                 const scoreCntText = new Text(`In stack: ${card.card.score[card.count]}`);
                 scoreCntText.anchor.set(0.5, 0.5);
-                scoreCntText.position.set(xPos, yPos + CARD_HEIGHT / 1.5);
+                scoreCntText.position.set(xPos, yPos + CONFIG.CARD_HEIGHT / 1.5);
                 this.drawable.push(scoreCntText);
                 this.app.stage.addChild(scoreCntText);
 
@@ -156,7 +152,7 @@ class Game {
         totalScoreText.anchor.set(0.5, 0.5);
         totalScoreText.position.set(
             window.innerWidth / 2,
-            window.innerHeight / 4 - CARD_HEIGHT / 1.5
+            window.innerHeight / 4 - CONFIG.CARD_HEIGHT / 1.5
         );
         this.app.stage.addChild(totalScoreText);
         this.drawable.push(totalScoreText);

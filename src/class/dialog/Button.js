@@ -4,8 +4,7 @@ class Button {
     constructor(posX, posY, width, height, buttonText, clickFunction) {
         this.buttonContainer = new Container();
         this.buttonSprite = new Sprite(Texture.from(require('../../images/button.png').default));
-        this.buttonSprite.x = posX;
-        this.buttonSprite.y = posY;
+        this.buttonSprite.position.set(posX, posY);
         this.buttonSprite.width = width;
         this.buttonSprite.height = height;
         this.buttonSprite.anchor.set(0.5, 0.5);
@@ -16,18 +15,17 @@ class Button {
         this.buttonSprite.interactive = true;
         this.buttonSprite.buttonMode = true;
         this.buttonSprite.on('pointerdown', this.onButtonDown)
-        this.buttonSprite.on('pointerup', this.onButtonUp)
-        this.buttonSprite.on('pointerupoutside', this.onButtonUp)
-        this.buttonSprite.on('pointerover', this.onButtonOver)
-        this.buttonSprite.on('pointerout', this.onButtonOut);
-        this.buttonContainer.addChild(this.buttonSprite);
+            .on('pointerup', this.onButtonUp)
+            .on('pointerupoutside', this.onButtonUp)
+            .on('pointerover', this.onButtonOver)
+            .on('pointerout', this.onButtonOut);
 
         this.text = new Text(buttonText);
         this.text.anchor.set(0.5, 0.5);
         this.text.x = posX;
         this.text.y = posY;
-        this.buttonContainer.addChild(this.text);
 
+        this.buttonContainer.addChild(this.buttonSprite, this.text);
         return this.buttonContainer;
     }
 
@@ -41,12 +39,6 @@ class Button {
         if (this.isdown) {
             this.clickFunction();
         }
-        // this.isdown = false;
-        // if (this.isOver) {
-        //     this.texture = this.hoverTexture;
-        // } else {
-        //     this.texture = this.defaultTexture;
-        // }
     }
 
     onButtonOver() {

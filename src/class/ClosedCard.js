@@ -1,5 +1,5 @@
 import PlayableCard from './PlayableCard.js';
-import { HAND_RECT_X, HAND_RECT_Y, HAND_WIDTH, HAND_HEIGHT } from '../config.js';
+import * as CONFIG from '../config.js';
 
 class ClosedCard extends PlayableCard {
     constructor(id, name, image) {
@@ -20,10 +20,10 @@ class ClosedCard extends PlayableCard {
             this.cardSprite.position.y += (newPos.y - this.cardSprite.dragging.y);
             this.cardSprite.dragging = newPos;
 
-            const x1 = HAND_RECT_X,
-                y1 = HAND_RECT_Y,
-                x2 = HAND_RECT_X + HAND_WIDTH,
-                y2 = HAND_RECT_Y + HAND_HEIGHT,
+            const x1 = CONFIG.HAND_RECT_X,
+                y1 = CONFIG.HAND_RECT_Y,
+                x2 = CONFIG.HAND_RECT_X + CONFIG.HAND_WIDTH,
+                y2 = CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT,
                 x = newPos.x,
                 y = newPos.y;
 
