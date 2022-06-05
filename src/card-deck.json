@@ -3,37 +3,12 @@
         {
             "id": 0,
             "name": "Two",
-            "count": 4,
+            "count": 7,
             "image": "card-two.png",
             "score": {
                 "0": 0,
                 "1": 2,
-                "2": 4,
-                "3": 8,
-                "4": 16
-            }
-        },
-        {
-            "id": 1,
-            "name": "Five",
-            "count": 3,
-            "image": "card-five.png",
-            "score": {
-                "0": 0,
-                "1": 5,
-                "2": 10,
-                "3": 20
-            }
-        },
-        {
-            "id": 2,
-            "name": "Ten",
-            "count": 2,
-            "image": "card-ten.png",
-            "score": {
-                "0": 0,
-                "1": 10,
-                "2": 100
+                "2": 4
             }
         }
     ]

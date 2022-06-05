@@ -2,6 +2,7 @@ class Player {
     constructor(id) {
         this.id = id;
         this.playerCards = [];
+        this.savedCards = [];
         this.totalsScore = 0;
     }
 
@@ -12,6 +13,16 @@ class Player {
         } else {
             this.playerCards[foundIndex].count = this.playerCards[foundIndex].count + 1;
         }
+    }
+
+    SaveCard(cardData, count) {
+        this.savedCards.push({
+            id: cardData.card.id,
+            image: cardData.card.image,
+            name: cardData.card.name,
+            count: count,
+            score: cardData.card.score[count]
+        });
     }
 
     AddScore(addValue) {

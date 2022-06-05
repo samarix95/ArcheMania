@@ -1,11 +1,11 @@
 import { Application } from 'pixi.js';
-import { WIDTH, HEIGHT } from '../config.js';
+import { APP_WIDTH, APP_HEIGHT } from '../config.js';
 
 class App {
     constructor() {
         this.app = new Application({
-            width: WIDTH,
-            height: HEIGHT,
+            width: APP_WIDTH,
+            height: APP_HEIGHT,
             backgroundAlpha: true,
             antialias: true
         });

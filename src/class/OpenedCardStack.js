@@ -8,7 +8,6 @@ class OpenedCardStack {
         this.playerData = this.gameData.table.players[0];
 
         this.cardsContainer = new Container();
-        this.cardsContainer.position.set();
 
         this.childStore = {};
         this.cardId = null;
@@ -38,6 +37,12 @@ class OpenedCardStack {
     }
 
     deleteCards(orderId) {
+        const foundCardIndex = this.playerData.playerCards.findIndex(x => x.card.id == this.cardId);
+        const cardData = this.playerData.playerCards[foundCardIndex].card;
+        const maxCount = Math.max.apply(null, Object.keys(cardData.score));
+
+        orderId = orderId > maxCount - 1 ? maxCount - 1 : orderId;
+
         this.dialog = new Dialog(
             `Would you like to send artifacts to museum [${this.selectedCardsCount}] for get ${this.selectedScore} score points?`,
             this.applySaveCards.bind(this),
@@ -64,6 +69,7 @@ class OpenedCardStack {
             this.selectedCardsCount++;
         }
 
+        this.gameData.table.players[0].SaveCard(this.playerData.playerCards[foundCardIndex], this.selectedCardsCount);
         this.playerData.AddScore(params.selectedScore);
 
         if (this.playerData.playerCards[foundCardIndex].count == 0) {
@@ -81,22 +87,27 @@ class OpenedCardStack {
     onFocus(isFocus, orderId) {
         if (!this.isMouseDown) {
             const foundCardIndex = this.playerData.playerCards.findIndex(x => x.card.id == this.cardId);
+            const cardData = this.playerData.playerCards[foundCardIndex].card;
+            const maxCount = Math.max.apply(null, Object.keys(cardData.score));
+
             this.selectedCardsCount = 0;
 
             for (let i = 0; i <= orderId; i++) {
-                const element = this.cardsContainer.getChildAt(this.cardsContainer.getChildIndex(this.childStore[i]));
+                if (i < maxCount) {
+                    const element = this.cardsContainer.getChildAt(this.cardsContainer.getChildIndex(this.childStore[i]));
 
-                if (isFocus) {
-                    this.selectedCardsCount++;
-                    element.scale.x += 0.01;
-                    element.scale.y += 0.01;
-                } else {
-                    element.scale.x -= 0.01;
-                    element.scale.y -= 0.01;
+                    if (isFocus) {
+                        this.selectedCardsCount++;
+                        element.scale.x += 0.01;
+                        element.scale.y += 0.01;
+                    } else {
+                        element.scale.x -= 0.01;
+                        element.scale.y -= 0.01;
+                    }
                 }
             }
 
-            this.selectedScore = this.playerData.playerCards[foundCardIndex].card.score[this.selectedCardsCount];
+            this.selectedScore = cardData.score[this.selectedCardsCount];
 
             this.selectedTextObject.text = isFocus
                 ? `Selected: ${this.selectedScore}`

@@ -1,7 +1,7 @@
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
-import * as CONFIG from '../../config.js';
+import * as CONFIG from '../../config';
 
-import App from '../App.js';
+import App from '../App';
 import Button from './Button';
 
 class Dialog {

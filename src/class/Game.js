@@ -1,5 +1,5 @@
 import { Graphics, Container, Text } from 'pixi.js';
-import * as CONFIG from '../config.js';
+import * as CONFIG from '../config';
 
 import Player from './Player';
 import Table from './Table';
@@ -7,8 +7,9 @@ import Card from './Card';
 import ClosedCard from './ClosedCard';
 import OpenedCard from './OpenedCard';
 import OpenedCardStack from './OpenedCardStack';
+import Museum from './Museum';
 
-import App from './App.js';
+import App from './App';
 
 class Game {
     constructor() {
@@ -25,6 +26,7 @@ class Game {
     Start() {
         const player1 = new Player(0);
         this.table.AddPlayer(player1);
+        this.table.GiveCard(0);
         this.table.GiveCard(0);
         this.table.GiveCard(0);
 
@@ -75,6 +77,7 @@ class Game {
             if (element.isInRect) {
                 this.OpenCard(element);
             }
+            element.isInRect = false;
             element.position.set(window.innerWidth / 2, window.innerHeight / 4);
         }
     }
@@ -115,7 +118,14 @@ class Game {
                     openedCardStack.addCard(newCard);
                 }
 
-                const scoreCntText = new Text(`In stack: ${card.card.score[card.count]}`);
+                const maxCount = Math.max.apply(null, Object.keys(card.card.score));
+
+                const fullCnt = Math.floor(card.count/maxCount);
+                const part = card.count - fullCnt * maxCount;
+
+                const totalCnt = fullCnt * card.card.score[maxCount] + card.card.score[part];
+
+                const scoreCntText = new Text(`In stack: ${totalCnt}`);
                 scoreCntText.anchor.set(0.5, 0.5);
                 scoreCntText.position.set(xPos, yPos + CONFIG.CARD_HEIGHT / 1.5);
                 openedCardStack.addText(scoreCntText);
@@ -125,11 +135,10 @@ class Game {
                 this.app.stage.addChild(scoreCntText, openedCardStack.cardsContainer);
             });
 
-        const totalScoreText = new Text(`Total score: ${this.table.players[0].totalsScore}`);
-        totalScoreText.anchor.set(0.5, 0.5);
-        totalScoreText.position.set(window.innerWidth / 2, window.innerHeight / 4 - CONFIG.CARD_HEIGHT / 1.5);
-        this.drawable.push(totalScoreText);
-        this.app.stage.addChild(totalScoreText);
+        const museum = new Museum(this.table.players[0].savedCards);
+
+        this.drawable.push(museum);
+        this.app.stage.addChild(museum);
     }
 }
 export default Game;
