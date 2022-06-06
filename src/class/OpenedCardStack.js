@@ -1,4 +1,5 @@
-import { Container } from 'pixi.js';
+import { Container, ObservablePoint } from 'pixi.js';
+import gsap from "gsap";
 
 import Dialog from './dialog/Dialog.js';
 
@@ -17,6 +18,11 @@ class OpenedCardStack {
         this.selectedTextObject = null;
         this.selectedText = "";
 
+        this.maxWidth = 0;
+        this.maxHeight = 0;
+        this.minWidth = 0;
+        this.minHeight = 0;
+
         this.isMouseDown = false;
         document.addEventListener('mousedown', () => { this.isMouseDown = true });
         document.addEventListener('mouseup', () => { this.isMouseDown = false });
@@ -27,6 +33,12 @@ class OpenedCardStack {
         card.cardSprite.on('click', () => this.deleteCards(card.orderId));
         card.cardSprite.on('mouseover', () => this.onFocus(true, card.orderId));
         card.cardSprite.on('mouseout', () => this.onFocus(false, card.orderId));
+
+        this.maxWidth = card.cardSprite.width + 10;
+        this.maxHeight = card.cardSprite.height + 10;
+        this.minWidth = card.cardSprite.width;
+        this.minHeight = card.cardSprite.height;
+
         this.childStore[card.orderId] = card.cardSprite;
         this.cardsContainer.addChild(card.cardSprite);
     }
@@ -43,8 +55,20 @@ class OpenedCardStack {
 
         orderId = orderId > maxCount - 1 ? maxCount - 1 : orderId;
 
+        for (let i = 0; i <= orderId; i++) {
+            const element = this.cardsContainer.getChildAt(this.cardsContainer.getChildIndex(this.childStore[i]));
+
+            gsap.to(element, {
+                width: this.minWidth,
+                height: this.minHeight,
+                duration: 0.1,
+                repeat: 1,
+                yoyo: true,
+            });
+        }
+
         this.dialog = new Dialog(
-            `Would you like to send artifacts to museum [${this.selectedCardsCount}] for get ${this.selectedScore} score points?`,
+            `Would you like to send ${this.selectedCardsCount} parts of the ${cardData.name} to museum and get ${this.selectedScore} score points?`,
             this.applySaveCards.bind(this),
             this.cancelSaveCards.bind(this),
             {
@@ -98,11 +122,17 @@ class OpenedCardStack {
 
                     if (isFocus) {
                         this.selectedCardsCount++;
-                        element.scale.x += 0.01;
-                        element.scale.y += 0.01;
+                        gsap.to(element, {
+                            width: this.maxWidth,
+                            height: this.maxHeight,
+                            duration: 0.05
+                        });
                     } else {
-                        element.scale.x -= 0.01;
-                        element.scale.y -= 0.01;
+                        gsap.to(element, {
+                            width: this.minWidth,
+                            height: this.minHeight,
+                            duration: 0.05
+                        });
                     }
                 }
             }
@@ -111,7 +141,7 @@ class OpenedCardStack {
 
             this.selectedTextObject.text = isFocus
                 ? `Selected: ${this.selectedScore}`
-                : this.selectedTextObject.text = this.selectedText;
+                : '';
         }
     }
 }

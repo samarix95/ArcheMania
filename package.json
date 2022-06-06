@@ -12,12 +12,13 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "pixi.js": "^6.3.2",
         "@pixi/app": "^6.3.2",
         "@pixi/core": "^6.3.2",
         "@pixi/loaders": "^6.3.2",
         "@pixi/sprite": "^6.3.2",
-        "@pixi/ticker": "^6.3.2"
+        "@pixi/ticker": "^6.3.2",
+        "gsap": "^3.10.4",
+        "pixi.js": "^6.3.2"
     },
     "devDependencies": {
         "@babel/core": "^7.18.2",

@@ -19,7 +19,7 @@ class Dialog {
         dialogBackGround.beginFill(0xe6e6fa)
             .lineStyle(4, 0x0, .3)
             .drawRect(-CONFIG.DIALOG_X_POS, -CONFIG.DIALOG_Y_POS, window.innerWidth, window.innerHeight)
-            .endFill()
+            .endFill();
         dialogBackGround.alpha = 0.5;
         dialogBackGround.interactive = true;
 

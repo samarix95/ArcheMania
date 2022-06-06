@@ -28,14 +28,13 @@ class Game {
         this.table.AddPlayer(player1);
         this.table.GiveCard(0);
         this.table.GiveCard(0);
-        this.table.GiveCard(0);
 
         const rectangle = new Graphics();
         rectangle.beginFill(0xFFFFFF)
             .drawRect(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y, CONFIG.HAND_WIDTH, CONFIG.HAND_HEIGHT)
             .endFill();
 
-        const cardLeftCntText = new Text(`Cards left: ${this.table.deck.cards.length}`);
+        const cardLeftCntText = new Text(`Cards in deck: ${this.table.deck.cards.length}`);
         cardLeftCntText.anchor.set(0.5, 0.5);
         cardLeftCntText.position.set(window.innerWidth / 2, window.innerHeight / 4 + CONFIG.CARD_HEIGHT / 1.5);
 
@@ -50,6 +49,8 @@ class Game {
         closedCard.on('pointerup', () => this.onDragCardEnd(closedCard));
         closedCard.on('pointerupoutside', () => this.onDragCardEnd(closedCard));
         closedCard.on('click', (e) => this.checkDClick(e, closedCard));
+        
+        this.museum = new Museum();
 
         this.app.stage.addChild(rectangle, this.backCardContainer, closedCard);
         this.Redraw();
@@ -85,7 +86,9 @@ class Game {
     OpenCard(element) {
         this.table.GiveCard(0);
         const text = this.backCardContainer.getChildAt(0);
-        text.text = `Cards left: ${this.table.deck.cards.length}`;
+        text.text = this.table.deck.cards.length != 0
+            ? `Cards in deck: ${this.table.deck.cards.length}`
+            : '';
 
         if (this.table.deck.cards.length == 1) {
             this.backCardContainer.removeChildAt(1);
@@ -118,14 +121,7 @@ class Game {
                     openedCardStack.addCard(newCard);
                 }
 
-                const maxCount = Math.max.apply(null, Object.keys(card.card.score));
-
-                const fullCnt = Math.floor(card.count/maxCount);
-                const part = card.count - fullCnt * maxCount;
-
-                const totalCnt = fullCnt * card.card.score[maxCount] + card.card.score[part];
-
-                const scoreCntText = new Text(`In stack: ${totalCnt}`);
+                const scoreCntText = new Text(``);
                 scoreCntText.anchor.set(0.5, 0.5);
                 scoreCntText.position.set(xPos, yPos + CONFIG.CARD_HEIGHT / 1.5);
                 openedCardStack.addText(scoreCntText);
@@ -135,7 +131,7 @@ class Game {
                 this.app.stage.addChild(scoreCntText, openedCardStack.cardsContainer);
             });
 
-        const museum = new Museum(this.table.players[0].savedCards);
+        const museum = this.museum.Draw(this.table.players[0].savedCards);
 
         this.drawable.push(museum);
         this.app.stage.addChild(museum);
