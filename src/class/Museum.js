@@ -4,7 +4,7 @@ import gsap from 'gsap';
 
 import * as CONFIG from '../config';
 import OpenedCard from './OpenedCard';
-import Button from './dialog/Button';
+import ButtonImage from './button/ButtonImage';
 
 class Museum {
     constructor() {
@@ -16,7 +16,7 @@ class Museum {
         const collapseButton = this.museumContainer.getChildAt(2);
         if (this.isCollapsed) {
             this.isCollapsed = false;
-            collapseButton.getChildAt(1).text = '▼';
+            collapseButton.getChildAt(1).setNewTexture(require('../images/museum/museum-close-icon.png').default);
             this.museumPositionY = this.museumContainer.position.y - CONFIG.CARD_HEIGHT;
             gsap.to(this.museumContainer, {
                 y: this.museumContainer.position.y - CONFIG.CARD_HEIGHT,
@@ -24,7 +24,7 @@ class Museum {
             });
         } else {
             this.isCollapsed = true;
-            collapseButton.getChildAt(1).text = '▲';
+            collapseButton.getChildAt(1).setNewTexture(require('../images/museum/museum-open-icon.png').default);
             this.museumPositionY = this.museumContainer.position.y + CONFIG.CARD_HEIGHT;
             gsap.to(this.museumContainer, {
                 y: this.museumContainer.position.y + CONFIG.CARD_HEIGHT,
@@ -47,6 +47,7 @@ class Museum {
         background.beginFill(0x001ab0)
             .drawRect(0, 0, window.innerWidth, CONFIG.CARD_HEIGHT)
             .endFill();
+        background.alpha = 0.5;
         this.museumContainer.addChildAt(background, 0);
 
         museumCards.sort((a, b) => a.id - b.id)
@@ -91,7 +92,18 @@ class Museum {
 
         this.museumContainer.addChildAt(scrollbox, 1);
 
-        const collapseButton = new Button(window.innerWidth / 2, -25, 80, 45, this.isCollapsed ? '▲' : '▼', this.Collapse.bind(this));
+        const collapseButton = new ButtonImage(
+            window.innerWidth / 2,
+            -25,
+            80,
+            45,
+            this.Collapse.bind(this),
+            this.isCollapsed
+                ? require('../images/museum/museum-open-icon.png').default
+                : require('../images/museum/museum-close-icon.png').default,
+            56.7,
+            35
+        );
         this.museumContainer.addChildAt(collapseButton, 2);
 
         const totalText = new Text(`Total score: ${totalScore}`);

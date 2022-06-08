@@ -1,4 +1,4 @@
-import { Container, ObservablePoint } from 'pixi.js';
+import { Container } from 'pixi.js';
 import gsap from 'gsap';
 
 import Dialog from './dialog/Dialog.js';

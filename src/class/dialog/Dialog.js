@@ -2,7 +2,7 @@ import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import * as CONFIG from '../../config';
 
 import App from '../App';
-import Button from './Button';
+import ButtonText from '../button/ButtonText';
 
 class Dialog {
     constructor(dialogText = '', onYesAction = null, onNoAction = null, params = {}) {
@@ -40,8 +40,8 @@ class Dialog {
         text.position.set(CONFIG.DIALOG_WIDTH / 2, CONFIG.DIALOG_PADDING);
         text.anchor.set(0.5, 0.5);
 
-        const buttonYes = new Button(CONFIG.DIALOG_WIDTH - CONFIG.DIALOG_PADDING, CONFIG.DIALOG_HEIGHT - 35, 80, 45, 'Yes', this.OnYesAction.bind(this));
-        const buttonNo = new Button(CONFIG.DIALOG_PADDING, CONFIG.DIALOG_HEIGHT - 35, 80, 45, 'No', this.OnNoAction.bind(this));
+        const buttonYes = new ButtonText(CONFIG.DIALOG_WIDTH - CONFIG.DIALOG_PADDING, CONFIG.DIALOG_HEIGHT - 35, 80, 45, this.OnYesAction.bind(this), 'Yes');
+        const buttonNo = new ButtonText(CONFIG.DIALOG_PADDING, CONFIG.DIALOG_HEIGHT - 35, 80, 45, this.OnNoAction.bind(this), 'No');
 
         this.dialogContainer.addChild(dialogBackGround, dialogField, text, buttonYes, buttonNo);
         return this;

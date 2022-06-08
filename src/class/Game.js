@@ -1,4 +1,4 @@
-import { Graphics, Container, Text, Loader } from 'pixi.js';
+import { Graphics, Container, Text, Loader, TilingSprite, Texture } from 'pixi.js';
 import gsap from 'gsap';
 import * as CONFIG from '../config';
 
@@ -46,11 +46,20 @@ class Game {
                 this.table.GiveCard(0);
                 this.table.GiveCard(0);
 
+                const tsprite = new TilingSprite(
+                    Texture.from(require('../images/hand/background.jpg').default),
+                    CONFIG.HAND_WIDTH,
+                    CONFIG.HAND_HEIGHT
+                );
+                tsprite.position.set(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y);
+                this.app.stage.addChildAt(tsprite, 0);
+
                 const hand = new Graphics();
-                hand.beginFill(0xFFFFFF)
+                hand.beginFill(0xd6d5d2)
                     .drawRect(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y, CONFIG.HAND_WIDTH, CONFIG.HAND_HEIGHT)
                     .endFill();
-                this.app.stage.addChildAt(hand, 0);
+                hand.alpha = 0;
+                this.app.stage.addChildAt(hand, 1);
 
                 const cardLeftCntText = new Text(`Cards in deck: ${this.table.deck.cards.length}`);
                 cardLeftCntText.anchor.set(0.5, 0.5);
@@ -94,15 +103,17 @@ class Game {
                     ? CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT / 2
                     : cardStack.yPos - 15 * stackCont;
 
-                gsap.to(card.cardSprite, {
-                    x: xPos,
-                    y: yPos,
-                    duration: 0.3,
-                    onComplete: () => {
-                        this.app.stage.removeChild(card.cardSprite);
-                        this.Redraw();
-                    }
-                });
+                setTimeout(() => {
+                    gsap.to(card.cardSprite, {
+                        x: xPos,
+                        y: yPos,
+                        duration: 0.3,
+                        onComplete: () => {
+                            this.app.stage.removeChild(card.cardSprite);
+                            this.Redraw();
+                        }
+                    })
+                }, 300);
             }
             this.timeOne = null;
             this.clickedDataPoint = null;
@@ -111,11 +122,8 @@ class Game {
 
     onDragCardEnd(element) {
         if (element.dragging) {
-            const hand = this.app.stage.getChildAt(0);
-            hand.clear();
-            hand.beginFill(0xFFFFFF)
-                .drawRect(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y, CONFIG.HAND_WIDTH, CONFIG.HAND_HEIGHT)
-                .endFill();
+            const hand = this.app.stage.getChildAt(1);
+            hand.alpha = 0;
 
             element.alpha = 1;
             element.data = null;
@@ -135,15 +143,17 @@ class Game {
                     ? CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT / 2
                     : cardStack.yPos - 15 * stackCont;
 
-                gsap.to(card.cardSprite, {
-                    x: xPos,
-                    y: yPos,
-                    duration: 0.3,
-                    onComplete: () => {
-                        this.app.stage.removeChild(card.cardSprite);
-                        this.Redraw();
-                    }
-                });
+                setTimeout(() => {
+                    gsap.to(card.cardSprite, {
+                        x: xPos,
+                        y: yPos,
+                        duration: 0.2,
+                        onComplete: () => {
+                            this.app.stage.removeChild(card.cardSprite);
+                            this.Redraw();
+                        }
+                    })
+                }, 300);
             }
             element.isInRect = false;
             element.position.set(window.innerWidth / 2, window.innerHeight / 4);

@@ -1,3 +1,5 @@
+import gsap from 'gsap';
+
 import * as CONFIG from '../config';
 import PlayableCard from './PlayableCard';
 import App from './App';
@@ -8,8 +10,30 @@ class ClosedCard extends PlayableCard {
         this.app = this.app = App.getInstance();
         this.cardSprite.on('pointerdown', (e) => this.onDragStart(e));
         this.cardSprite.on('pointermove', () => this.onDragCardMove());
+        this.cardSprite.on('mouseover', () => this.onFocus(true, this.cardSprite));
+        this.cardSprite.on('mouseout', () => this.onFocus(false, this.cardSprite));
+        this.maxWidth = this.cardSprite.width + 5;
+        this.maxHeight = this.cardSprite.height + 5;
+        this.minWidth = this.cardSprite.width;
+        this.minHeight = this.cardSprite.height;
         this.cardSprite.isInRect = false;
         return this.cardSprite;
+    }
+
+    onFocus(isFocus, element) {
+        if (isFocus) {
+            gsap.to(element, {
+                width: this.maxWidth,
+                height: this.maxHeight,
+                duration: 0.05
+            });
+        } else {
+            gsap.to(element, {
+                width: this.minWidth,
+                height: this.minHeight,
+                duration: 0.05
+            });
+        }
     }
 
     onDragStart(e) {
@@ -19,12 +43,8 @@ class ClosedCard extends PlayableCard {
 
     onDragCardMove() {
         if (this.cardSprite.dragging) {
-            const hand = this.app.stage.getChildAt(0);
-            hand.clear();  
-            hand.beginFill(0xd6d5d2)
-                .drawRect(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y, CONFIG.HAND_WIDTH, CONFIG.HAND_HEIGHT)
-                .endFill();
-            this.app.stage.addChildAt(hand, 0);
+            const hand = this.app.stage.getChildAt(1);
+            hand.alpha = 0.3;
             var newPos = this.cardSprite.data.getLocalPosition(this.cardSprite.parent);
             this.cardSprite.position.x += (newPos.x - this.cardSprite.dragging.x);
             this.cardSprite.position.y += (newPos.y - this.cardSprite.dragging.y);
