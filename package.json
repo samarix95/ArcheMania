@@ -18,6 +18,8 @@
         "@pixi/sprite": "^6.3.2",
         "@pixi/ticker": "^6.3.2",
         "gsap": "^3.10.4",
+        "pixi-scrollbox": "^2.3.1",
+        "pixi-viewport": "^4.34.4",
         "pixi.js": "^6.3.2"
     },
     "devDependencies": {

@@ -1,5 +1,5 @@
 import { Container, ObservablePoint } from 'pixi.js';
-import gsap from "gsap";
+import gsap from 'gsap';
 
 import Dialog from './dialog/Dialog.js';
 
@@ -81,9 +81,9 @@ class OpenedCardStack {
 
     applySaveCards(params) {
         const orderId = params.orderId;
+        const foundCardIndex = this.playerData.playerCards.findIndex(x => x.card.id == this.cardId);
         const lastIndex = Object.keys(this.childStore).length - 1;
         const toIndex = lastIndex - (orderId + 1);
-        const foundCardIndex = this.playerData.playerCards.findIndex(x => x.card.id == this.cardId);
         this.selectedCardsCount = 0;
 
         for (let i = lastIndex; i > toIndex; i--) {

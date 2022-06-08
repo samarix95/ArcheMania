@@ -49,6 +49,8 @@ class Table {
         if (this.deck.cards.length == 0) {
             this.EndGame();
         }
+        
+        return gotCard;
     }
 }
 export default Table;

@@ -1,9 +1,11 @@
-import PlayableCard from './PlayableCard.js';
-import * as CONFIG from '../config.js';
+import * as CONFIG from '../config';
+import PlayableCard from './PlayableCard';
+import App from './App';
 
 class ClosedCard extends PlayableCard {
     constructor(id, name, image) {
         super(id, name, image);
+        this.app = this.app = App.getInstance();
         this.cardSprite.on('pointerdown', (e) => this.onDragStart(e));
         this.cardSprite.on('pointermove', () => this.onDragCardMove());
         this.cardSprite.isInRect = false;
@@ -17,6 +19,12 @@ class ClosedCard extends PlayableCard {
 
     onDragCardMove() {
         if (this.cardSprite.dragging) {
+            const hand = this.app.stage.getChildAt(0);
+            hand.clear();  
+            hand.beginFill(0xd6d5d2)
+                .drawRect(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y, CONFIG.HAND_WIDTH, CONFIG.HAND_HEIGHT)
+                .endFill();
+            this.app.stage.addChildAt(hand, 0);
             var newPos = this.cardSprite.data.getLocalPosition(this.cardSprite.parent);
             this.cardSprite.position.x += (newPos.x - this.cardSprite.dragging.x);
             this.cardSprite.position.y += (newPos.y - this.cardSprite.dragging.y);
