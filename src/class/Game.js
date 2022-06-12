@@ -86,7 +86,10 @@ class Game {
                     tsprite.position.set(0, window.innerHeight - CONFIG.HAND_HEIGHT);
                     tsprite.width = window.innerWidth;
                     tsprite.height = window.innerHeight - CONFIG.HAND_HEIGHT;
-                    hand.width = window.innerWidth;
+                    hand.clear();
+                    hand.beginFill(0xd6d5d2)
+                        .drawRect(0, window.innerHeight - CONFIG.HAND_HEIGHT, window.innerWidth, CONFIG.HAND_HEIGHT)
+                        .endFill();
                     cardLeftCntText.position.x = window.innerWidth / 2;
                     cardLeftCntText.position.y = window.innerHeight / 4 + CONFIG.CARD_HEIGHT / 1.5;
                     closedBackCard.cardSprite.position.x = window.innerWidth / 2;
@@ -206,7 +209,7 @@ class Game {
             return window.innerHeight - CONFIG.HAND_HEIGHT + CONFIG.HAND_HEIGHT / 2;
         }
 
-        if (CalcXPos(playerCards.length - 1) - CalcXPos(0) < window.innerWidth) {
+        if (CalcXPos(playerCards.length - 1) - CalcXPos(0) + CONFIG.CARD_WIDTH < window.innerWidth) {
             playerCards.sort((a, b) => a.card.id - b.card.id)
                 .map((card, key) => {
                     const xPos = CalcXPos(key);
