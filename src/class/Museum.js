@@ -17,17 +17,17 @@ class Museum {
         if (this.isCollapsed) {
             this.isCollapsed = false;
             collapseButton.getChildAt(1).setNewTexture(require('../images/museum/museum-close-icon.png').default);
-            this.museumPositionY = this.museumContainer.position.y - CONFIG.CARD_HEIGHT;
+            this.museumPositionY = this.museumPositionY - CONFIG.CARD_HEIGHT;
             gsap.to(this.museumContainer, {
-                y: this.museumContainer.position.y - CONFIG.CARD_HEIGHT,
+                y: this.museumPositionY,
                 duration: 0.1,
             });
         } else {
             this.isCollapsed = true;
             collapseButton.getChildAt(1).setNewTexture(require('../images/museum/museum-open-icon.png').default);
-            this.museumPositionY = this.museumContainer.position.y + CONFIG.CARD_HEIGHT;
+            this.museumPositionY = this.museumPositionY + CONFIG.CARD_HEIGHT;
             gsap.to(this.museumContainer, {
-                y: this.museumContainer.position.y + CONFIG.CARD_HEIGHT,
+                y: this.museumPositionY,
                 duration: 0.1,
             });
         }
@@ -112,6 +112,12 @@ class Museum {
         this.museumContainer.addChild(totalText);
 
         window.addEventListener('resize', () => {
+            if (this.isCollapsed) {
+                this.museumPositionY = window.innerHeight;
+            } else {
+                this.museumPositionY = window.innerHeight - CONFIG.CARD_HEIGHT;
+            }
+            this.museumContainer.position.y = this.museumPositionY;
             collapseButton.UpdatePosition(window.innerWidth / 2, -25);
             background.width = window.innerWidth;
             scrollbox.boxWidth = window.innerWidth;

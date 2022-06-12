@@ -49,10 +49,10 @@ class ClosedCard extends PlayableCard {
             this.cardSprite.position.y += (newPos.y - this.cardSprite.dragging.y);
             this.cardSprite.dragging = newPos;
 
-            const x1 = CONFIG.HAND_RECT_X;
-            const y1 = CONFIG.HAND_RECT_Y;
-            const x2 = CONFIG.HAND_RECT_X + window.innerWidth;
-            const y2 = CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT;
+            const x1 = 0;
+            const y1 = window.innerHeight - CONFIG.HAND_HEIGHT;
+            const x2 = window.innerWidth;
+            const y2 = window.innerHeight;
             const x = this.cardSprite.position.x;
             const y = this.cardSprite.position.y;
 

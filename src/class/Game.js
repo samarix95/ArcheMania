@@ -1,4 +1,5 @@
 import { Graphics, Container, Text, Loader, TilingSprite, Texture } from 'pixi.js';
+import { Scrollbox } from 'pixi-scrollbox';
 import gsap from 'gsap';
 import * as CONFIG from '../config';
 
@@ -21,6 +22,10 @@ class Game {
         // DoubleClick costyl
         this.timeOne = null;
         this.clickedDataPoint = null;
+
+        window.addEventListener('resize', () => {
+            this.Redraw();
+        });
     }
 
     Start() {
@@ -51,12 +56,12 @@ class Game {
                     window.innerWidth,
                     CONFIG.HAND_HEIGHT
                 );
-                tsprite.position.set(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y);
+                tsprite.position.set(0, window.innerHeight - CONFIG.HAND_HEIGHT);
                 this.app.stage.addChildAt(tsprite, 0);
 
                 const hand = new Graphics();
                 hand.beginFill(0xd6d5d2)
-                    .drawRect(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y, window.innerWidth, CONFIG.HAND_HEIGHT)
+                    .drawRect(0, window.innerHeight - CONFIG.HAND_HEIGHT, window.innerWidth, CONFIG.HAND_HEIGHT)
                     .endFill();
                 hand.alpha = 0;
                 this.app.stage.addChildAt(hand, 1);
@@ -78,10 +83,14 @@ class Game {
                 this.Redraw();
 
                 window.addEventListener('resize', () => {
+                    tsprite.position.set(0, window.innerHeight - CONFIG.HAND_HEIGHT);
                     tsprite.width = window.innerWidth;
-                    tsprite.hand = window.innerWidth;
+                    tsprite.height = window.innerHeight - CONFIG.HAND_HEIGHT;
+                    hand.width = window.innerWidth;
                     cardLeftCntText.position.x = window.innerWidth / 2;
+                    cardLeftCntText.position.y = window.innerHeight / 4 + CONFIG.CARD_HEIGHT / 1.5;
                     closedBackCard.cardSprite.position.x = window.innerWidth / 2;
+                    closedBackCard.cardSprite.position.y = window.innerHeight / 4 - 10;
                 });
             });
     }
@@ -102,7 +111,7 @@ class Game {
                     ? window.innerWidth / 2
                     : cardStack.xPos;
                 const yPos = cardStack == undefined
-                    ? CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT / 2
+                    ? window.innerHeight - CONFIG.HAND_HEIGHT + CONFIG.HAND_HEIGHT / 2
                     : cardStack.yPos - 15 * stackCont;
 
                 setTimeout(() => {
@@ -142,7 +151,7 @@ class Game {
                     ? window.innerWidth / 2
                     : cardStack.xPos;
                 const yPos = cardStack == undefined
-                    ? CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT / 2
+                    ? window.innerHeight - CONFIG.HAND_HEIGHT + CONFIG.HAND_HEIGHT / 2
                     : cardStack.yPos - 15 * stackCont;
 
                 setTimeout(() => {
@@ -185,36 +194,82 @@ class Game {
             this.app.stage.removeChild(drawableCard);
         });
         this.drawable = [];
-        const player = this.table.players[0].playerCards;
+
+        const playerCards = this.table.players[0].playerCards;
 
         const CalcXPos = (key) => {
             // TODO: Should do it more clearly
-            return (window.innerWidth / 2 + key * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) - (((player.length - 1) * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) / 2);
+            return (window.innerWidth / 2 + key * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) - (((playerCards.length - 1) * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) / 2);
         }
 
-        player.sort((a, b) => a.card.id - b.card.id)
-            .map((card, key) => {
-                const openedCardStack = new OpenedCardStack(this);
-                const xPos = CalcXPos(key);
-                const yPos = CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT / 2;
+        const CalcYPos = () => {
+            return window.innerHeight - CONFIG.HAND_HEIGHT + CONFIG.HAND_HEIGHT / 2;
+        }
 
-                openedCardStack.cardsContainer.cardId = card.card.id;
-                openedCardStack.cardsContainer.xPos = xPos;
-                openedCardStack.cardsContainer.yPos = yPos;
+        if (CalcXPos(playerCards.length - 1) - CalcXPos(0) < window.innerWidth) {
+            playerCards.sort((a, b) => a.card.id - b.card.id)
+                .map((card, key) => {
+                    const xPos = CalcXPos(key);
+                    const yPos = CalcYPos();
 
-                for (let i = card.count - 1; i >= 0; i--) {
-                    const newCard = new OpenedCard(card.card.id, card.card.name, card.card.image);
-                    newCard.cardSprite.position.set(xPos, yPos - 15 * (i));
-                    newCard.setOrderId(i);
-                    openedCardStack.addCard(newCard);
-                    window.addEventListener('resize', () => {
-                        newCard.cardSprite.position.x = CalcXPos(key);
-                    });
-                }
+                    const openedCardStack = new OpenedCardStack(this);
+                    openedCardStack.cardsContainer.cardId = card.card.id;
+                    openedCardStack.cardsContainer.xPos = xPos;
+                    openedCardStack.cardsContainer.yPos = yPos;
 
-                this.drawable.push(openedCardStack.cardsContainer);
-                this.app.stage.addChild(openedCardStack.cardsContainer);
+                    for (let i = card.count - 1; i >= 0; i--) {
+                        const newCard = new OpenedCard(card.card.id, card.card.name, card.card.image);
+                        newCard.cardSprite.position.set(xPos, yPos - 15 * i);
+                        newCard.setOrderId(i);
+                        openedCardStack.addCard(newCard);
+
+                        window.addEventListener('resize', () => {
+                            newCard.cardSprite.position.x = CalcXPos(key);
+                            newCard.cardSprite.position.y = CalcYPos() - 15 * i;
+                        });
+                    }
+
+                    this.drawable.push(openedCardStack.cardsContainer);
+                    this.app.stage.addChild(openedCardStack.cardsContainer);
+                });
+        } else {
+            const scrollbox = new Scrollbox({
+                boxWidth: window.innerWidth,
+                boxHeight: window.innerHeight,
+                overflowY: 'hidden',
+                fade: true,
+                scrollbarBackgroundAlpha: 0,
             });
+            scrollbox.position.set(0, 0);
+            playerCards.sort((a, b) => a.card.id - b.card.id)
+                .map((card, key) => {
+                    const xPos = key * (CONFIG.CARD_OFFSET + CONFIG.CARD_WIDTH) + CONFIG.CARD_WIDTH / 2;
+                    const yPos = window.innerHeight - CONFIG.HAND_HEIGHT + CONFIG.HAND_HEIGHT / 2;
+
+                    const openedCardStack = new OpenedCardStack(this);
+                    openedCardStack.cardsContainer.cardId = card.card.id;
+                    openedCardStack.cardsContainer.xPos = xPos;
+                    openedCardStack.cardsContainer.yPos = yPos;
+
+                    for (let i = card.count - 1; i >= 0; i--) {
+                        const newCard = new OpenedCard(card.card.id, card.card.name, card.card.image);
+                        newCard.cardSprite.position.set(xPos, yPos - 15 * i);
+                        newCard.setOrderId(i);
+                        openedCardStack.addCard(newCard);
+
+                        window.addEventListener('resize', () => {
+                            newCard.cardSprite.position.x = key * (CONFIG.CARD_OFFSET + CONFIG.CARD_WIDTH);
+                            newCard.cardSprite.position.y = (window.innerHeight - CONFIG.HAND_HEIGHT + CONFIG.HAND_HEIGHT / 2) - 15 * i;
+                        });
+                    }
+
+                    scrollbox.content.addChild(openedCardStack.cardsContainer);
+                    scrollbox.update();
+                });
+
+            this.drawable.push(scrollbox);
+            this.app.stage.addChild(scrollbox);
+        }
 
         const museum = this.museum.Draw(this.table.players[0].savedCards);
 
@@ -229,8 +284,10 @@ class Game {
             closedCard.on('click', (e) => this.checkDClick(e, closedCard));
             this.drawable.push(closedCard);
             this.app.stage.addChild(closedCard);
+
             window.addEventListener('resize', () => {
                 closedCard.position.x = window.innerWidth / 2;
+                closedCard.position.y = window.innerHeight / 4;
             });
         }
     }

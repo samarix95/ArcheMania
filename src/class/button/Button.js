@@ -28,7 +28,6 @@ class Button {
             .on('pointerover', this.onButtonOver)
             .on('pointerout', this.onButtonOut);
 
-
         this.buttonContainer = new Container();
         this.buttonContainer.addChild(this.buttonSprite);
         this.buttonContainer.UpdatePosition = (posX, posY) => {
@@ -44,8 +43,9 @@ class Button {
 
     onButtonUp() {
         if (this.isdown) {
-            this.onClick();
             this.isdown = false;
+            this.isOver = false;
+            this.onClick();
         }
     }
 
