@@ -31,6 +31,9 @@ class Button {
 
         this.buttonContainer = new Container();
         this.buttonContainer.addChild(this.buttonSprite);
+        this.buttonContainer.UpdatePosition = (posX, posY) => {
+            this.buttonSprite.position.set(posX, posY)
+        }
     }
 
     onButtonDown() {

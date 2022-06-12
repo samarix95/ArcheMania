@@ -12,13 +12,13 @@ class Dialog {
         this.onNoAction = onNoAction == null ? () => { } : onNoAction;
 
         this.dialogContainer = new Container();
-        this.dialogContainer.position.set(CONFIG.DIALOG_X_POS, CONFIG.DIALOG_Y_POS);
+        this.dialogContainer.position.set(window.innerWidth / 2 - CONFIG.DIALOG_WIDTH / 2, CONFIG.DIALOG_Y_POS);
         this.dialogContainer.visible = false;
 
         const dialogBackGround = new Graphics();
         dialogBackGround.beginFill(0xe6e6fa)
             .lineStyle(4, 0x0, .3)
-            .drawRect(-CONFIG.DIALOG_X_POS, -CONFIG.DIALOG_Y_POS, window.innerWidth, window.innerHeight)
+            .drawRect(-(window.innerWidth / 2 - CONFIG.DIALOG_WIDTH / 2), -CONFIG.DIALOG_Y_POS, window.innerWidth, window.innerHeight)
             .endFill();
         dialogBackGround.alpha = 0.5;
         dialogBackGround.interactive = true;
@@ -44,6 +44,16 @@ class Dialog {
         const buttonNo = new ButtonText(CONFIG.DIALOG_PADDING, CONFIG.DIALOG_HEIGHT - 35, 80, 45, this.OnNoAction.bind(this), 'No');
 
         this.dialogContainer.addChild(dialogBackGround, dialogField, text, buttonYes, buttonNo);
+
+        window.addEventListener('resize', () => {
+            this.dialogContainer.position.x = window.innerWidth / 2 - CONFIG.DIALOG_WIDTH / 2;
+            dialogBackGround.clear();
+            dialogBackGround.beginFill(0xe6e6fa)
+                .lineStyle(4, 0x0, .3)
+                .drawRect(-(window.innerWidth / 2 - CONFIG.DIALOG_WIDTH / 2), -(window.innerWidth / 2 - CONFIG.DIALOG_WIDTH / 2), window.innerWidth, window.innerHeight)
+                .endFill();
+        });
+
         return this;
     }
 

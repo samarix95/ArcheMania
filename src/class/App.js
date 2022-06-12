@@ -1,20 +1,19 @@
 import { Application } from 'pixi.js';
-import { APP_WIDTH, APP_HEIGHT } from '../config.js';
 
 class App {
     constructor() {
         this.app = new Application({
-            width: APP_WIDTH,
-            height: APP_HEIGHT,
+            autoResize: true,
             backgroundAlpha: true,
             antialias: true
         });
-
-        this.app.renderer.backgroundColor = 0x23395D;
-
+        this.app.renderer.backgroundColor = 0x00ffff;
         this.app.renderer.resize(window.innerWidth, window.innerHeight);
-
         document.body.appendChild(this.app.view);
+
+        window.addEventListener('resize', () => {
+            this.app.renderer.resize(window.innerWidth, window.innerHeight);
+        });
     }
 
     static getInstance() {

@@ -12,6 +12,12 @@ class ButtonText extends Button {
         this.text.y = posY;
 
         this.buttonContainer.addChild(this.text);
+        this.buttonContainer.UpdatePosition = (posX, posY) => {
+            this.buttonSprite.position.set(posX, posY);
+            this.text.x = posX;
+            this.text.y = posY;
+        }
+
         return this.buttonContainer;
     }
 }

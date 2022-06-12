@@ -48,7 +48,7 @@ class Game {
 
                 const tsprite = new TilingSprite(
                     Texture.from(require('../images/hand/background.jpg').default),
-                    CONFIG.HAND_WIDTH,
+                    window.innerWidth,
                     CONFIG.HAND_HEIGHT
                 );
                 tsprite.position.set(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y);
@@ -56,7 +56,7 @@ class Game {
 
                 const hand = new Graphics();
                 hand.beginFill(0xd6d5d2)
-                    .drawRect(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y, CONFIG.HAND_WIDTH, CONFIG.HAND_HEIGHT)
+                    .drawRect(CONFIG.HAND_RECT_X, CONFIG.HAND_RECT_Y, window.innerWidth, CONFIG.HAND_HEIGHT)
                     .endFill();
                 hand.alpha = 0;
                 this.app.stage.addChildAt(hand, 1);
@@ -76,6 +76,13 @@ class Game {
 
                 this.museum = new Museum(resources.museumBackground.texture);
                 this.Redraw();
+
+                window.addEventListener('resize', () => {
+                    tsprite.width = window.innerWidth;
+                    tsprite.hand = window.innerWidth;
+                    cardLeftCntText.position.x = window.innerWidth / 2;
+                    closedBackCard.cardSprite.position.x = window.innerWidth / 2;
+                });
             });
     }
 
@@ -180,11 +187,15 @@ class Game {
         this.drawable = [];
         const player = this.table.players[0].playerCards;
 
+        const CalcXPos = (key) => {
+            // TODO: Should do it more clearly
+            return (window.innerWidth / 2 + key * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) - (((player.length - 1) * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) / 2);
+        }
+
         player.sort((a, b) => a.card.id - b.card.id)
             .map((card, key) => {
                 const openedCardStack = new OpenedCardStack(this);
-                // TODO: Should do it more clearly
-                const xPos = (window.innerWidth / 2 + key * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) - (((player.length - 1) * (CONFIG.CARD_WIDTH + CONFIG.CARD_OFFSET)) / 2);
+                const xPos = CalcXPos(key);
                 const yPos = CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT / 2;
 
                 openedCardStack.cardsContainer.cardId = card.card.id;
@@ -196,6 +207,9 @@ class Game {
                     newCard.cardSprite.position.set(xPos, yPos - 15 * (i));
                     newCard.setOrderId(i);
                     openedCardStack.addCard(newCard);
+                    window.addEventListener('resize', () => {
+                        newCard.cardSprite.position.x = CalcXPos(key);
+                    });
                 }
 
                 this.drawable.push(openedCardStack.cardsContainer);
@@ -215,6 +229,9 @@ class Game {
             closedCard.on('click', (e) => this.checkDClick(e, closedCard));
             this.drawable.push(closedCard);
             this.app.stage.addChild(closedCard);
+            window.addEventListener('resize', () => {
+                closedCard.position.x = window.innerWidth / 2;
+            });
         }
     }
 }

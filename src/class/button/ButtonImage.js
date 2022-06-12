@@ -15,6 +15,12 @@ class ButtonImage extends Button {
         this.sprite.setNewTexture = this.setNewTexture;
 
         this.buttonContainer.addChild(this.sprite);
+        this.buttonContainer.UpdatePosition = (posX, posY) => {
+            this.buttonSprite.position.set(posX, posY);
+            this.sprite.x = posX;
+            this.sprite.y = posY;
+        }
+
         return this.buttonContainer;
     }
 

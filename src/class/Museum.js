@@ -102,7 +102,7 @@ class Museum {
                 ? require('../images/museum/museum-open-icon.png').default
                 : require('../images/museum/museum-close-icon.png').default,
             56.7,
-            35
+            51.5
         );
         this.museumContainer.addChildAt(collapseButton, 2);
 
@@ -110,6 +110,13 @@ class Museum {
         totalText.position.set(cardOffset, -25);
         totalText.anchor.set(0, 0.5);
         this.museumContainer.addChild(totalText);
+
+        window.addEventListener('resize', () => {
+            collapseButton.UpdatePosition(window.innerWidth / 2, -25);
+            background.width = window.innerWidth;
+            scrollbox.boxWidth = window.innerWidth;
+            scrollbox.update();
+        });
 
         return this.museumContainer;
     }
