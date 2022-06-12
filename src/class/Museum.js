@@ -106,7 +106,7 @@ class Museum {
         );
         this.museumContainer.addChildAt(collapseButton, 2);
 
-        const totalText = new Text(`Total score: ${totalScore}`);
+        const totalText = new Text(`Score: ${totalScore}`);
         totalText.position.set(cardOffset, -25);
         totalText.anchor.set(0, 0.5);
         this.museumContainer.addChild(totalText);

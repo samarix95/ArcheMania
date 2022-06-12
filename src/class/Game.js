@@ -256,13 +256,13 @@ class Game {
 
                     for (let i = card.count - 1; i >= 0; i--) {
                         const newCard = new OpenedCard(card.card.id, card.card.name, card.card.image);
-                        newCard.cardSprite.position.set(xPos, yPos - 15 * i);
+                        newCard.cardSprite.position.set(xPos, yPos - 25 * i);
                         newCard.setOrderId(i);
                         openedCardStack.addCard(newCard);
 
                         window.addEventListener('resize', () => {
                             newCard.cardSprite.position.x = key * (CONFIG.CARD_OFFSET + CONFIG.CARD_WIDTH);
-                            newCard.cardSprite.position.y = (window.innerHeight - CONFIG.HAND_HEIGHT + CONFIG.HAND_HEIGHT / 2) - 15 * i;
+                            newCard.cardSprite.position.y = (window.innerHeight - CONFIG.HAND_HEIGHT + CONFIG.HAND_HEIGHT / 2) - 25 * i;
                         });
                     }
 

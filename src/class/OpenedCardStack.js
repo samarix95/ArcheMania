@@ -1,5 +1,6 @@
 import { Container, Text } from 'pixi.js';
 import gsap from 'gsap';
+
 import * as CONFIG from '../config';
 import Dialog from './dialog/Dialog.js';
 
@@ -17,6 +18,7 @@ class OpenedCardStack {
         this.selectedScore = 0;
         this.selectedTextObject = null;
         this.selectedText = "";
+        this.selectedOrderId = null;
 
         this.maxWidth = 0;
         this.maxHeight = 0;
@@ -34,9 +36,10 @@ class OpenedCardStack {
 
     addCard(card) {
         this.cardId = card.id;
-        card.cardSprite.on('click', () => this.deleteCards(card.orderId));
-        card.cardSprite.on('mouseover', () => this.onFocus(true, card.orderId));
-        card.cardSprite.on('mouseout', () => this.onFocus(false, card.orderId));
+        card.cardSprite.on('click', () => this.DeleteCards(card.orderId));
+        card.cardSprite.on('mouseover', () => this.OnMouseFocus(true, card.orderId));
+        card.cardSprite.on('mouseout', () => this.OnMouseFocus(false, card.orderId));
+        card.cardSprite.on('touchstart', (e) => this.OnTouchStart(e, card.orderId));
 
         this.maxWidth = card.cardSprite.width + 10;
         this.maxHeight = card.cardSprite.height + 10;
@@ -52,7 +55,7 @@ class OpenedCardStack {
         this.selectedText = textObject.text;
     }
 
-    deleteCards(orderId) {
+    DeleteCards(orderId) {
         const foundCardIndex = this.playerData.playerCards.findIndex(x => x.card.id == this.cardId);
         const cardData = this.playerData.playerCards[foundCardIndex].card;
         const maxCount = Math.max.apply(null, Object.keys(cardData.score));
@@ -117,7 +120,7 @@ class OpenedCardStack {
         }
     }
 
-    onFocus(isFocus, orderId) {
+    OnMouseFocus(isFocus, orderId) {
         if (!this.isMouseDown) {
             const foundCardIndex = this.playerData.playerCards.findIndex(x => x.card.id == this.cardId);
             if (this.playerData.playerCards[foundCardIndex] != undefined) {
@@ -156,6 +159,77 @@ class OpenedCardStack {
                     ? `Selected: ${this.selectedScore}`
                     : '';
             }
+        }
+    }
+
+    OnTouchStart(event, orderId) {
+        this.scoreCntText.text = '';
+        const foundCardIndex = this.playerData.playerCards.findIndex(x => x.card.id == this.cardId);
+        let containerIndex = null;
+        let prevOrderId = null;
+        let prevSelectedContainer = null;
+        let parentContainer = event.target.parent.parent.parent;
+        const container = event.target.parent;
+
+        if (parentContainer === null) {
+            parentContainer = event.target.parent.parent;
+            containerIndex = parentContainer.getChildIndex(container);
+            prevOrderId = parentContainer.selectedOrderId;
+            prevSelectedContainer = parentContainer.selectedContainer;
+        } else {
+            containerIndex = parentContainer.content.getChildIndex(container);
+            prevOrderId = parentContainer.selectedOrderId;
+            prevSelectedContainer = parentContainer.selectedContainer;
+        }
+
+        if (containerIndex == prevSelectedContainer && orderId == prevOrderId) {
+            this.DeleteCards(orderId);
+        }
+
+        parentContainer.selectedContainer = containerIndex;
+        parentContainer.selectedOrderId = orderId;
+
+        this.gameData.drawable.map(element => {
+            if (element.constructor.name == 'Scrollbox') {
+                element.content.children.map(container => {
+                    container.children.map(card => {
+                        if (card.constructor.name == 'Sprite') {
+                            gsap.to(card, {
+                                width: this.minWidth,
+                                height: this.minHeight,
+                                duration: 0.05
+                            });
+                        }
+                        if (card.constructor.name == 'Text') {
+                            card.text = '';
+                        }
+                    })
+                });
+            }
+        });
+
+        if (this.playerData.playerCards[foundCardIndex] != undefined) {
+            const cardData = this.playerData.playerCards[foundCardIndex].card;
+            const maxCount = Math.max.apply(null, Object.keys(cardData.score));
+
+            this.selectedCardsCount = 0;
+            orderId = orderId > maxCount - 1 ? maxCount - 1 : orderId;
+
+            for (let i = 0; i <= orderId; i++) {
+                const element = this.cardsContainer.getChildAt(this.cardsContainer.getChildIndex(this.childStore[i]));
+                this.selectedCardsCount++;
+                gsap.to(element, {
+                    width: this.maxWidth,
+                    height: this.maxHeight,
+                    duration: 0.05
+                });
+                this.scoreCntText.position.set(element.x, element.y - CONFIG.CARD_HEIGHT / 1.5);
+                this.cardsContainer.removeChild(this.scoreCntText);
+                this.cardsContainer.addChild(this.scoreCntText);
+            }
+
+            this.selectedScore = cardData.score[this.selectedCardsCount];
+            this.scoreCntText.text = `Selected: ${this.selectedScore}`;
         }
     }
 }
