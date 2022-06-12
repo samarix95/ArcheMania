@@ -31,7 +31,7 @@ class Table {
                     player.AddScore(scoreTable[maxCount]);
                 }
 
-                for (let i = 0; i < part; i++) {
+                if (part !== 0) {
                     player.SaveCard(player.playerCards[key], part);
                     player.AddScore(scoreTable[part]);
                 }
@@ -49,7 +49,7 @@ class Table {
         if (this.deck.cards.length == 0) {
             this.EndGame();
         }
-        
+
         return gotCard;
     }
 }

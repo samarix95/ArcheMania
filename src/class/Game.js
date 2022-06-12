@@ -163,7 +163,7 @@ class Game {
             : '';
 
         if (this.table.deck.cards.length == 1) {
-            this.backCardContainer.removeChildAt(1);
+            this.app.stage.removeChild(this.backCardContainer);
         }
 
         if (this.table.deck.cards.length == 0) {
@@ -207,12 +207,15 @@ class Game {
         this.drawable.push(museum);
         this.app.stage.addChild(museum);
 
-        const closedCard = new ClosedCard(1000, "0", 'card-shirt-1.png');
-        closedCard.position.set(window.innerWidth / 2, window.innerHeight / 4);
-        closedCard.on('pointerup', () => this.onDragCardEnd(closedCard));
-        closedCard.on('pointerupoutside', () => this.onDragCardEnd(closedCard));
-        closedCard.on('click', (e) => this.checkDClick(e, closedCard));
-        this.app.stage.addChild(closedCard);
+        if (this.table.deck.cards.length != 0) {
+            const closedCard = new ClosedCard(1000, "0", 'card-shirt-1.png');
+            closedCard.position.set(window.innerWidth / 2, window.innerHeight / 4);
+            closedCard.on('pointerup', () => this.onDragCardEnd(closedCard));
+            closedCard.on('pointerupoutside', () => this.onDragCardEnd(closedCard));
+            closedCard.on('click', (e) => this.checkDClick(e, closedCard));
+            this.drawable.push(closedCard);
+            this.app.stage.addChild(closedCard);
+        }
     }
 }
 export default Game;
