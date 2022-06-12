@@ -65,22 +65,17 @@ class Game {
                 cardLeftCntText.anchor.set(0.5, 0.5);
                 cardLeftCntText.position.set(window.innerWidth / 2, window.innerHeight / 4 + CONFIG.CARD_HEIGHT / 1.5);
 
+                this.backCardContainer.addChildAt(cardLeftCntText, 0);
+
                 const closedBackCard = new Card(1000, "0", 'card-shirt-1.png');
                 closedBackCard.cardSprite.position.set(window.innerWidth / 2, window.innerHeight / 4 - 10);
 
-                this.backCardContainer.addChildAt(cardLeftCntText, 0);
                 this.backCardContainer.addChildAt(closedBackCard.cardSprite, 1);
 
-                const closedCard = new ClosedCard(1000, "0", 'card-shirt-1.png');
-                closedCard.position.set(window.innerWidth / 2, window.innerHeight / 4);
-                closedCard.on('pointerup', () => this.onDragCardEnd(closedCard));
-                closedCard.on('pointerupoutside', () => this.onDragCardEnd(closedCard));
-                closedCard.on('click', (e) => this.checkDClick(e, closedCard));
+                this.app.stage.addChild(this.backCardContainer);
 
                 this.museum = new Museum(resources.museumBackground.texture);
                 this.Redraw();
-
-                this.app.stage.addChild(this.backCardContainer, closedCard);
             });
     }
 
@@ -203,20 +198,21 @@ class Game {
                     openedCardStack.addCard(newCard);
                 }
 
-                const scoreCntText = new Text(``);
-                scoreCntText.anchor.set(0.5, 0.5);
-                scoreCntText.position.set(xPos, yPos + CONFIG.CARD_HEIGHT / 1.5);
-                openedCardStack.addText(scoreCntText);
-
-                this.drawable.push(scoreCntText);
                 this.drawable.push(openedCardStack.cardsContainer);
-                this.app.stage.addChild(scoreCntText, openedCardStack.cardsContainer);
+                this.app.stage.addChild(openedCardStack.cardsContainer);
             });
 
         const museum = this.museum.Draw(this.table.players[0].savedCards);
 
         this.drawable.push(museum);
         this.app.stage.addChild(museum);
+
+        const closedCard = new ClosedCard(1000, "0", 'card-shirt-1.png');
+        closedCard.position.set(window.innerWidth / 2, window.innerHeight / 4);
+        closedCard.on('pointerup', () => this.onDragCardEnd(closedCard));
+        closedCard.on('pointerupoutside', () => this.onDragCardEnd(closedCard));
+        closedCard.on('click', (e) => this.checkDClick(e, closedCard));
+        this.app.stage.addChild(closedCard);
     }
 }
 export default Game;

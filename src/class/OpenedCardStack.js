@@ -1,6 +1,6 @@
-import { Container } from 'pixi.js';
+import { Container, Text } from 'pixi.js';
 import gsap from 'gsap';
-
+import * as CONFIG from '../config';
 import Dialog from './dialog/Dialog.js';
 
 class OpenedCardStack {
@@ -26,6 +26,10 @@ class OpenedCardStack {
         this.isMouseDown = false;
         document.addEventListener('mousedown', () => { this.isMouseDown = true });
         document.addEventListener('mouseup', () => { this.isMouseDown = false });
+
+        this.scoreCntText = new Text(``);
+        this.scoreCntText.anchor.set(0.5, 0.5);
+        this.cardsContainer.addChild(this.scoreCntText);
     }
 
     addCard(card) {
@@ -71,10 +75,7 @@ class OpenedCardStack {
             `Would you like to send ${this.selectedCardsCount} parts of the ${cardData.name} to museum and get ${this.selectedScore} score points?`,
             this.applySaveCards.bind(this),
             this.cancelSaveCards.bind(this),
-            {
-                orderId: orderId,
-                selectedScore: this.selectedScore
-            }
+            { orderId: orderId, selectedScore: this.selectedScore }
         );
         this.dialog.ShowDialog();
     }
@@ -104,8 +105,16 @@ class OpenedCardStack {
         this.gameData.Redraw();
     }
 
-    cancelSaveCards() {
+    cancelSaveCards(params) {
         delete this.dialog;
+        for (let i = 0; i <= params.orderId; i++) {
+            const element = this.cardsContainer.getChildAt(this.cardsContainer.getChildIndex(this.childStore[i]));
+            gsap.to(element, {
+                width: this.minWidth,
+                height: this.minHeight,
+                duration: 0.05
+            });
+        }
     }
 
     onFocus(isFocus, orderId) {
@@ -115,31 +124,34 @@ class OpenedCardStack {
             const maxCount = Math.max.apply(null, Object.keys(cardData.score));
 
             this.selectedCardsCount = 0;
+            orderId = orderId > maxCount - 1 ? maxCount - 1 : orderId;
 
             for (let i = 0; i <= orderId; i++) {
-                if (i < maxCount) {
-                    const element = this.cardsContainer.getChildAt(this.cardsContainer.getChildIndex(this.childStore[i]));
+                const element = this.cardsContainer.getChildAt(this.cardsContainer.getChildIndex(this.childStore[i]));
 
-                    if (isFocus) {
-                        this.selectedCardsCount++;
-                        gsap.to(element, {
-                            width: this.maxWidth,
-                            height: this.maxHeight,
-                            duration: 0.05
-                        });
-                    } else {
-                        gsap.to(element, {
-                            width: this.minWidth,
-                            height: this.minHeight,
-                            duration: 0.05
-                        });
-                    }
+                if (isFocus) {
+                    this.selectedCardsCount++;
+                    gsap.to(element, {
+                        width: this.maxWidth,
+                        height: this.maxHeight,
+                        duration: 0.05
+                    });
+                    this.scoreCntText.position.set(element.x, element.y - CONFIG.CARD_HEIGHT / 1.5);
+                    this.cardsContainer.removeChild(this.scoreCntText);
+                    this.cardsContainer.addChild(this.scoreCntText);
+                } else {
+                    gsap.to(element, {
+                        width: this.minWidth,
+                        height: this.minHeight,
+                        duration: 0.05
+                    });
+                    this.cardsContainer.removeChild(this.scoreCntText);
                 }
             }
 
             this.selectedScore = cardData.score[this.selectedCardsCount];
 
-            this.selectedTextObject.text = isFocus
+            this.scoreCntText.text = isFocus
                 ? `Selected: ${this.selectedScore}`
                 : '';
         }

@@ -44,24 +44,23 @@ class ClosedCard extends PlayableCard {
     onDragCardMove() {
         if (this.cardSprite.dragging) {
             const hand = this.app.stage.getChildAt(1);
-            hand.alpha = 0.3;
             var newPos = this.cardSprite.data.getLocalPosition(this.cardSprite.parent);
             this.cardSprite.position.x += (newPos.x - this.cardSprite.dragging.x);
             this.cardSprite.position.y += (newPos.y - this.cardSprite.dragging.y);
             this.cardSprite.dragging = newPos;
 
-            const x1 = CONFIG.HAND_RECT_X,
-                y1 = CONFIG.HAND_RECT_Y,
-                x2 = CONFIG.HAND_RECT_X + CONFIG.HAND_WIDTH,
-                y2 = CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT,
-                x = newPos.x,
-                y = newPos.y;
+            const x1 = CONFIG.HAND_RECT_X;
+            const y1 = CONFIG.HAND_RECT_Y;
+            const x2 = CONFIG.HAND_RECT_X + CONFIG.HAND_WIDTH;
+            const y2 = CONFIG.HAND_RECT_Y + CONFIG.HAND_HEIGHT;
+            const x = this.cardSprite.position.x;
+            const y = this.cardSprite.position.y;
 
             if (this.pointInRect({ x1, y1, x2, y2 }, { x, y })) {
-                this.cardSprite.alpha = 0.5;
+                hand.alpha = 0.3;
                 this.cardSprite.isInRect = true;
             } else {
-                this.cardSprite.alpha = 1;
+                hand.alpha = 0;
                 this.cardSprite.isInRect = false;
             }
         }
